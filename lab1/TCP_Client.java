@@ -8,6 +8,7 @@ class Receiver extends Thread{
     private final TCP_Client tcp;
     private final Socket socket;
     private final BufferedReader br;
+    private boolean is_connected = false;
 
     public Receiver(TCP_Client tcp, Socket socket) throws IOException{
         this.tcp = tcp;
@@ -22,13 +23,27 @@ class Receiver extends Thread{
             String line;
             while(true){
                 line = br.readLine();
-                System.out.println(tcp.get_timestamp() + "\nReceived: " + line);
-                tcp.resetTimeout(socket);
+                if (line.startsWith("connect:")){
+                    String[] parts = line.split(":");
+                    if (parts.length > 2 || parts[1].equals(tcp.get_name())){
+                        System.out.println(tcp.get_timestamp() + "\nReceived invalid connection string.");
+                    } else {
+                        System.out.println(tcp.get_timestamp() + "\nConnection string accepted. A receiver has been assigned to " +
+                                "the connection, and will shut down after " + TCP_Client.TIMEOUT_SECONDS + " seconds of inactivity.");
+                        this.tcp.connections.put(parts[1], socket);
+                        this.is_connected = true;
+                        System.out.println("Connected to " + parts[1]);
+                    }
+                }
+                if(is_connected){
+                    System.out.println(tcp.get_timestamp() + "\nReceived: " + line);
+                    tcp.resetTimeout(socket);
+                }
             }
         } catch (SocketTimeoutException e){
             try{
                 System.out.println(TCP_Client.TIMEOUT_SECONDS + " seconds of inactivity passed. Receiver for " +
-                        tcp.get_name() + " on " + socket.getPort() + " has been terminated.");
+                        tcp.get_name() + " on " + socket.getLocalPort() + " has been terminated.");
                 tcp.connections.entrySet().removeIf(x -> x.getValue().equals(socket));
                 br.close();
                 socket.close();
@@ -84,7 +99,7 @@ class Sender extends Thread{
 }
 
 public class TCP_Client extends Thread{
-    public final static int TIMEOUT_SECONDS = 10;
+    public final static int TIMEOUT_SECONDS = 60;
     private final String my_name;
     public String get_name(){
         return my_name;
@@ -108,30 +123,12 @@ public class TCP_Client extends Thread{
         try{
             Sender sender = new Sender(this, new Socket(dest_address, dest_port));
             sender.start();
-            String line;
-            BufferedReader br;
             while(true){
                 Socket socket = server_socket.accept();
-                br = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                line = br.readLine();
-                if (line.startsWith("connect:")){
-                    String[] parts = line.split(":");
-                    if (parts.length > 2 || parts[1].equals(my_name)){
-                        System.out.println(get_timestamp() + "\nReceived invalid connection string.");
-                        socket.close();
-                    } else {
-                        Receiver receiver = new Receiver(this, socket);
-                        receiver.start();
-                        System.out.println(get_timestamp() + "\nConnection string accepted. A receiver has been assigned to " +
-                                "the connection, and will shut down after " + TIMEOUT_SECONDS + " seconds of inactivity.");
-                        this.connections.put(parts[1], socket);
-                        break;
-                    }
-                } else{
-                    socket.close();
-                }
+                Receiver receiver = new Receiver(this, socket);
+                receiver.start();
             }
-        } catch (IOException e){
+        } catch (Exception e){
             throw new RuntimeException(e);
         }
     }
