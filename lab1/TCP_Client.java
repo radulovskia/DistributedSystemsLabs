@@ -4,6 +4,7 @@ import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.concurrent.Semaphore;
 
+// verbose log messages for an otherwise simple tcp message exchange between peers
 class Receiver extends Thread{
     private final TCP_Client tcp;
     private final Socket socket;
@@ -121,6 +122,7 @@ public class TCP_Client extends Thread{
     @Override
     public void run(){
         try{
+            Thread.sleep(10000); // time to open the other client if testing from 2 processes
             Sender sender = new Sender(this, new Socket(dest_address, dest_port));
             sender.start();
             while(true){
@@ -143,8 +145,8 @@ public class TCP_Client extends Thread{
 
     public static void main(String[] args) throws Exception{
         TCP_Client c1 = new TCP_Client("Alice",9753,"localhost",3579);
-        TCP_Client c2 = new TCP_Client("Bob",3579,"localhost",9753);
+//        TCP_Client c2 = new TCP_Client("Bob",3579,"localhost",9753);
         c1.start();
-        c2.start();
+//        c2.start();
     }
 }
