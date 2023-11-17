@@ -1,3 +1,5 @@
+package lab1;
+
 import java.io.*;
 import java.net.*;
 import java.sql.Timestamp;
@@ -20,7 +22,7 @@ class SenderWorker extends Thread{
     public void run(){
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         try{
-            System.out.println(get_timestamp() + "\nSender worker started.");
+            System.out.println(get_timestamp() + "\nlab1.Sender worker started.");
             String line;
             while((line = br.readLine()) != null){
                 System.out.println(get_timestamp() + "\nSending: " + line);
@@ -54,7 +56,7 @@ class ReceiverWorker extends Thread{
     @Override
     public void run(){
         try{
-            System.out.println(get_timestamp() + "\nReceiver worker started.");
+            System.out.println(get_timestamp() + "\nlab1.Receiver worker started.");
             while(true){
                 p = new DatagramPacket(buffer, buffer.length);
                 socket.receive(p);

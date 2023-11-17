@@ -1,3 +1,5 @@
+package lab1;
+
 import java.io.*;
 import java.net.*;
 import java.sql.Timestamp;
@@ -20,7 +22,7 @@ class Receiver extends Thread{
     @Override
     public void run(){
         try{
-            System.out.println(tcp.get_timestamp() + "\nReceiver worker started.");
+            System.out.println(tcp.get_timestamp() + "\nlab1.Receiver worker started.");
             String line;
             while(true){
                 line = br.readLine();
@@ -43,7 +45,7 @@ class Receiver extends Thread{
             }
         } catch (SocketTimeoutException e){
             try{
-                System.out.println(TCP_Client.TIMEOUT_SECONDS + " seconds of inactivity passed. Receiver for " +
+                System.out.println(TCP_Client.TIMEOUT_SECONDS + " seconds of inactivity passed. lab1.Receiver for " +
                         tcp.get_name() + " on " + socket.getLocalPort() + " has been terminated.");
                 tcp.connections.entrySet().removeIf(x -> x.getValue().equals(socket));
                 br.close();
@@ -71,11 +73,11 @@ class Sender extends Thread{
     @Override
     public void run(){
         try{
-            System.out.println(tcp.get_timestamp() + "\nSender worker started.");
+            System.out.println(tcp.get_timestamp() + "\nlab1.Sender worker started.");
             String line;
             while(true){
                 TCP_Client.lock.acquire(1);
-                System.out.println("\tSender for " + tcp.get_name());
+                System.out.println("\tlab1.Sender for " + tcp.get_name());
                 if((line = br.readLine()) != null){
                     if(line.startsWith("connect:")){
                         String[] parts = line.split(":");
@@ -145,7 +147,7 @@ public class TCP_Client extends Thread{
 
     public static void main(String[] args) throws Exception{
         TCP_Client c1 = new TCP_Client("Alice",9753,"localhost",3579);
-//        TCP_Client c2 = new TCP_Client("Bob",3579,"localhost",9753);
+//        lab1.TCP_Client c2 = new lab1.TCP_Client("Bob",3579,"localhost",9753);
         c1.start();
 //        c2.start();
     }
