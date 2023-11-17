@@ -29,7 +29,16 @@ public class Message implements Serializable{
 
     @Override
     public String toString(){
-        return "\"" + messageText + "\" - from " + sender + " to " + receiver;
+        String result;
+        result = "\"" + messageText + "\" - from " + sender + " to " + receiver;
+        if (fileContents != null){
+            StringBuilder sb = new StringBuilder(result);
+            sb.append("\nContent:\n");
+            for (String line : fileContents)
+               sb.append("\n").append(line);
+            result = sb.toString();
+        }
+        return result;
     }
 
 //    for JSON serialization
