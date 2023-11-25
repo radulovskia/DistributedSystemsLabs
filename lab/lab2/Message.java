@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import com.google.gson.Gson;
 
 public class Message implements Serializable{
+    static final long serialVersionUID = 518L;
     String sender;
     String receiver;
     String messageText;

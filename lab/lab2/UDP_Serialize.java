@@ -61,8 +61,7 @@ class ReceiverWorker extends Thread{
                 p = new DatagramPacket(buffer, buffer.length);
                 socket.receive(p);
                 byte[] bytes = p.getData();
-                ByteArrayInputStream bis = new ByteArrayInputStream(bytes);
-                ObjectInputStream ois = new ObjectInputStream(bis);
+                ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(bytes));
                 message = (Message) ois.readObject();
                 System.out.println(message);
             }
